@@ -276,10 +276,10 @@ async def model_metrics():
 
 
 # ---------------------------------------------------------------------------
-# Serve Frontend UI
+# Serve Frontend UI (Vite production build)
 # ---------------------------------------------------------------------------
-FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
+FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 if FRONTEND_DIR.exists():
     app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
 else:
-    logger.warning("Frontend directory not found. UI will not be served.")
+    logger.warning("Frontend dist/ not found. Run 'npm run build' in frontend/ to build the UI.")
