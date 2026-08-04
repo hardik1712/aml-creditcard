@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AML Fraud Detection</title>
+    <meta name="description" content="Real-time monitoring and analysis of transaction fraud risk">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <h2>🛡️ AML Detector</h2>
+                <div class="api-status">
+                    <span id="apiStatusIndicator" class="status-indicator checking"></span>
+                    <span id="apiStatusText">Checking API...</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-target="overview">📊 Overview</button>
+                <button class="nav-item" data-target="scorer">🔍 Transaction Scorer</button>
+            </nav>
+            <div class="sidebar-footer">
+                <p>AML Fraud Detection v1.0.0</p>
+                <p>Built with FastAPI + Vanilla JS</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="gradient-text">AML Fraud Detection Dashboard</h1>
+                <p class="subtitle">Real-time monitoring and analysis of transaction fraud risk</p>
+            </header>
+
+            <!-- Overview Section -->
+            <section id="overview" class="view-section active">
+                <div class="kpi-grid">
+                    <div class="kpi-card glass-panel">
+                        <label>Total Transactions</label>
+                        <div class="kpi-value" id="kpiTotalTx">-</div>
+                    </div>
+                    <div class="kpi-card glass-panel">
+                        <label>Fraud Cases</label>
+                        <div class="kpi-value" id="kpiFraudCases">-</div>
+                    </div>
+                    <div class="kpi-card glass-panel">
+                        <label>Fraud Rate</label>
+                        <div class="kpi-value" id="kpiFraudRate">-</div>
+                    </div>
+                    <div class="kpi-card glass-panel">
+                        <label>Model Precision</label>
+                        <div class="kpi-value" id="kpiPrecision">-</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-details">
+                    <div class="details-card glass-panel">
+                        <h3>Model Information</h3>
+                        <div id="modelInfoContent" class="model-info-grid">
+                            Loading model information...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transaction Scorer Section -->
+            <section id="scorer" class="view-section">
+                <div class="scorer-container">
+                    <div class="form-card glass-panel">
+                        <h3>📝 Transaction Details</h3>
+                        <form id="scoreForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="step">Step (hour)</label>
+                                    <input type="number" id="step" name="step" min="1" value="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="type">Transaction Type</label>
+                                    <select id="type" name="type" required>
+                                        <option value="TRANSFER">TRANSFER</option>
+                                        <option value="CASH_OUT">CASH_OUT</option>
+                                        <option value="CASH_IN">CASH_IN</option>
+                                        <option value="PAYMENT">PAYMENT</option>
+                                        <option value="DEBIT">DEBIT</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="amount">Amount ($)</label>
+                                    <input type="number" id="amount" name="amount" min="0" step="0.01" value="9839.64" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nameOrig">Originator Account</label>
+                                    <input type="text" id="nameOrig" name="nameOrig" value="C1231006815" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="oldbalanceOrg">Old Balance (Orig)</label>
+                                    <input type="number" id="oldbalanceOrg" name="oldbalanceOrg" min="0" step="0.01" value="170136.00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newbalanceOrig">New Balance (Orig)</label>
+                                    <input type="number" id="newbalanceOrig" name="newbalanceOrig" min="0" step="0.01" value="160296.36" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nameDest">Destination Account</label>
+                                    <input type="text" id="nameDest" name="nameDest" value="M1979787155" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="oldbalanceDest">Old Balance (Dest)</label>
+                                    <input type="number" id="oldbalanceDest" name="oldbalanceDest" min="0" step="0.01" value="0.00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newbalanceDest">New Balance (Dest)</label>
+                                    <input type="number" id="newbalanceDest" name="newbalanceDest" min="0" step="0.01" value="0.00" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary" id="submitBtn">
+                                <span>🔍 Score Transaction</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Result Panel -->
+                    <div id="resultPanel" class="result-card glass-panel hidden">
+                        <h3>Prediction Result</h3>
+                        <div class="result-kpis">
+                            <div class="result-kpi">
+                                <label>Fraud Probability</label>
+                                <div class="result-value" id="resProb">0.00%</div>
+                            </div>
+                            <div class="result-kpi">
+                                <label>Risk Tier</label>
+                                <div id="resTierBadge" class="tier-badge risk-low">LOW</div>
+                            </div>
+                            <div class="result-kpi">
+                                <label>Flagged</label>
+                                <div class="result-value" id="resFlagged">✅ NO</div>
+                            </div>
+                        </div>
+                        <div class="gauge-container">
+                            <div class="gauge-fill" id="gaugeFill"></div>
+                            <div class="gauge-marker" id="gaugeMarker"></div>
+                        </div>
+                        
+                        <details class="feature-details">
+                            <summary>🔬 Feature Values Used</summary>
+                            <div id="featureList" class="feature-list"></div>
+                        </details>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="/app.js"></script>
+</body>
+</html>

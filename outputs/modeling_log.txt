@@ -1,0 +1,34 @@
+2026-07-31 15:14:20,351 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:20,352 | run_modeling              | INFO    | PHASE 3: LOADING FEATURES
+2026-07-31 15:14:20,352 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:20,910 | run_modeling              | INFO    | Loaded 6,362,620 rows.
+2026-07-31 15:14:20,923 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:20,924 | run_modeling              | INFO    | PHASE 3: TRAIN / TEST SPLIT
+2026-07-31 15:14:20,924 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:24,588 | run_modeling              | INFO    | Train size: 5,090,096 | Test size: 1,272,524
+2026-07-31 15:14:24,594 | run_modeling              | INFO    | Fraud in train: 6,570 | Fraud in test: 1,643
+2026-07-31 15:14:24,594 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:24,594 | run_modeling              | INFO    | PHASE 3: MODEL TRAINING (LightGBM)
+2026-07-31 15:14:24,594 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:24,595 | aml_detector.models       | INFO    | Training LightGBM model on 5090096 rows...
+2026-07-31 15:14:43,659 | aml_detector.models       | INFO    | Model training complete.
+2026-07-31 15:14:43,686 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:43,687 | run_modeling              | INFO    | PHASE 3: EVALUATION
+2026-07-31 15:14:43,687 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:43,687 | aml_detector.models       | INFO    | Evaluating model on 1272524 test rows...
+2026-07-31 15:14:47,583 | aml_detector.models       | INFO    | Evaluation Results:
+2026-07-31 15:14:47,583 | aml_detector.models       | INFO    |   PR-AUC:    0.0986
+2026-07-31 15:14:47,583 | aml_detector.models       | INFO    |   Precision: 0.0994
+2026-07-31 15:14:47,583 | aml_detector.models       | INFO    |   Recall:    0.9878
+2026-07-31 15:14:47,584 | aml_detector.models       | INFO    |   F1 Score:  0.1806
+2026-07-31 15:14:47,584 | aml_detector.models       | INFO    |   Confusion Matrix: TP=1623, FP=14705, FN=20, TN=1256176
+2026-07-31 15:14:47,589 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:47,589 | run_modeling              | INFO    | PHASE 3: EXPLAINABILITY (SHAP)
+2026-07-31 15:14:47,589 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:47,634 | aml_detector.models       | INFO    | Computing SHAP values for explainability...
+2026-07-31 15:14:52,651 | aml_detector.models       | INFO    | SHAP summary plot saved to C:\Users\hardi\aml-creditcard\outputs\figures\08_shap_summary.png
+2026-07-31 15:14:52,652 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:52,652 | run_modeling              | INFO    | PHASE 3: SAVING MODEL
+2026-07-31 15:14:52,652 | run_modeling              | INFO    | ======================================================================
+2026-07-31 15:14:52,664 | run_modeling              | INFO    | Model saved to C:\Users\hardi\aml-creditcard\models\lgb_model.joblib
+2026-07-31 15:14:52,664 | run_modeling              | INFO    | Modeling pipeline complete.

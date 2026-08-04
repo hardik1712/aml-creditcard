@@ -1,0 +1,138 @@
+{
+  "class_imbalance": {
+    "fraud_counts": {
+      "0": 6354407,
+      "1": 8213
+    },
+    "fraud_rate": 0.001290820448180152,
+    "flagged_counts": {
+      "0": 6362604,
+      "1": 16
+    },
+    "flagged_rate": 2.51468734577894e-06,
+    "imbalance_ratio": 773.7010836478753,
+    "n_fraud": 8213,
+    "n_flagged": 16
+  },
+  "transaction_types": {
+    "type_counts": {
+      "CASH_OUT": 2237500,
+      "PAYMENT": 2151495,
+      "CASH_IN": 1399284,
+      "TRANSFER": 532909,
+      "DEBIT": 41432
+    },
+    "type_volume": {
+      "CASH_IN": 236367391912.46,
+      "CASH_OUT": 394412995224.49,
+      "DEBIT": 227199221.28,
+      "PAYMENT": 28093371138.37,
+      "TRANSFER": 485291987263.17
+    },
+    "fraud_by_type": {
+      "CASH_IN": 0,
+      "CASH_OUT": 4116,
+      "DEBIT": 0,
+      "PAYMENT": 0,
+      "TRANSFER": 4097
+    }
+  },
+  "amount_distributions": {
+    "stats_by_type": {
+      "CASH_IN": {
+        "count": 1399284,
+        "mean": 168920.2420040964,
+        "median": 143427.71000000002,
+        "std": 126508.25527180845,
+        "min": 0.04,
+        "max": 1915267.9,
+        "pct_in_structuring_band": 0.006844929263823498
+      },
+      "CASH_OUT": {
+        "count": 2237500,
+        "mean": 176273.96434614077,
+        "median": 147072.185,
+        "std": 175329.74448346382,
+        "min": 0.0,
+        "max": 10000000.0,
+        "pct_in_structuring_band": 0.006523798882681564
+      },
+      "DEBIT": {
+        "count": 41432,
+        "mean": 5483.6653137671365,
+        "median": 3048.99,
+        "std": 13318.535518284696,
+        "min": 0.55,
+        "max": 569077.51,
+        "pct_in_structuring_band": 0.04286541803436957
+      },
+      "PAYMENT": {
+        "count": 2151495,
+        "mean": 13057.60466018745,
+        "median": 9482.19,
+        "std": 12556.450185716425,
+        "min": 0.02,
+        "max": 238637.98,
+        "pct_in_structuring_band": 0.08689678572341558
+      },
+      "TRANSFER": {
+        "count": 532909,
+        "mean": 910647.0096454928,
+        "median": 486308.39,
+        "std": 1879573.5289080313,
+        "min": 2.6,
+        "max": 92445516.64,
+        "pct_in_structuring_band": 0.0023568751888221064
+      }
+    }
+  },
+  "temporal_patterns": {
+    "total_steps": 743,
+    "peak_step": 19,
+    "peak_count": 51352,
+    "avg_fraud_rate_per_step": 0.4392526362601352
+  },
+  "fan_out": {
+    "n_suspicious_senders": 0,
+    "n_known_fraud_in_suspicious": 0,
+    "top_accounts": [],
+    "total_small_transfers": 6084
+  },
+  "fan_in": {
+    "n_suspicious_collectors": 0,
+    "n_with_cashout": 0,
+    "top_accounts": []
+  },
+  "balance_inconsistency": {
+    "n_orig_discrepancies": 5182700,
+    "pct_orig_discrepancies": 0.8145543816855321,
+    "n_dest_discrepancies": 5394738,
+    "pct_dest_discrepancies": 0.8478799613995492,
+    "fraud_orig_disc_rate": 0.4328503591866553,
+    "legit_orig_disc_rate": 0.8150477298668467,
+    "fraud_dest_disc_rate": 0.8232071106781931,
+    "legit_dest_disc_rate": 0.8479118507832438,
+    "disc_by_type": {
+      "CASH_IN": {
+        "orig_disc_rate": 1.0,
+        "dest_disc_rate": 1.0
+      },
+      "CASH_OUT": {
+        "orig_disc_rate": 0.9027115083798882,
+        "dest_disc_rate": 0.6247816759776537
+      },
+      "DEBIT": {
+        "orig_disc_rate": 0.33080710561884535,
+        "dest_disc_rate": 0.5718044023942846
+      },
+      "PAYMENT": {
+        "orig_disc_rate": 0.5745990578644152,
+        "dest_disc_rate": 1.0
+      },
+      "TRANSFER": {
+        "orig_disc_rate": 0.9638531156351272,
+        "dest_disc_rate": 0.7924786408186013
+      }
+    }
+  }
+}

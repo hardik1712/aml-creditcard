@@ -1,0 +1,12 @@
+{
+  "precision": 0.09939980401763841,
+  "recall": 0.9878271454656117,
+  "f1": 0.18062433921317678,
+  "pr_auc": 0.0985832591804834,
+  "confusion_matrix": {
+    "True Negatives": 1256176,
+    "False Positives": 14705,
+    "False Negatives": 20,
+    "True Positives": 1623
+  }
+}

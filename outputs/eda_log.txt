@@ -1,0 +1,100 @@
+2026-07-31 11:15:43,208 | run_eda                   | INFO    | ======================================================================
+2026-07-31 11:15:43,208 | run_eda                   | INFO    | PHASE 1: LOADING PAYSIM DATA
+2026-07-31 11:15:43,208 | run_eda                   | INFO    | ======================================================================
+2026-07-31 11:15:43,208 | aml_detector.data_loader  | INFO    | Loading PaySim data from C:\Users\hardi\aml-creditcard\data\raw\PS_20174392719_1491204439457_log.csv ...
+2026-07-31 11:16:18,549 | aml_detector.data_loader  | INFO    | Loaded 6,362,620 rows x 11 columns (417.0 MB in memory)
+2026-07-31 11:16:18,835 | run_eda                   | INFO    | Dataset summary:
+2026-07-31 11:16:18,835 | run_eda                   | INFO    |   Rows:      6,362,620
+2026-07-31 11:16:18,835 | run_eda                   | INFO    |   Columns:   11
+2026-07-31 11:16:18,835 | run_eda                   | INFO    |   Memory:    417.0 MB
+2026-07-31 11:16:18,836 | run_eda                   | INFO    |   Steps:     1 to 743
+2026-07-31 11:16:18,836 | run_eda                   | INFO    |   Null counts: {'step': 0, 'type': 0, 'amount': 0, 'nameOrig': 0, 'oldbalanceOrg': 0, 'newbalanceOrig': 0, 'nameDest': 0, 'oldbalanceDest': 0, 'newbalanceDest': 0, 'isFraud': 0, 'isFlaggedFraud': 0}
+2026-07-31 11:16:18,837 | run_eda                   | INFO    |   Transaction types:
+2026-07-31 11:16:18,837 | run_eda                   | INFO    |     CASH_OUT     2,237,500
+2026-07-31 11:16:18,837 | run_eda                   | INFO    |     PAYMENT      2,151,495
+2026-07-31 11:16:18,837 | run_eda                   | INFO    |     CASH_IN      1,399,284
+2026-07-31 11:16:18,837 | run_eda                   | INFO    |     TRANSFER     532,909
+2026-07-31 11:16:18,837 | run_eda                   | INFO    |     DEBIT        41,432
+2026-07-31 11:16:18,837 | run_eda                   | INFO    | 
+2026-07-31 11:16:18,837 | run_eda                   | INFO    | ======================================================================
+2026-07-31 11:16:18,837 | run_eda                   | INFO    | PHASE 1: RUNNING EDA ANALYSES
+2026-07-31 11:16:18,837 | run_eda                   | INFO    | ======================================================================
+2026-07-31 11:16:18,837 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:18,837 | aml_detector.eda          | INFO    | Running EDA: class_imbalance
+2026-07-31 11:16:18,837 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:19,789 | aml_detector.eda          | INFO    | Saved figure: C:\Users\hardi\aml-creditcard\outputs\figures\01_class_imbalance.png
+2026-07-31 11:16:19,789 | aml_detector.eda          | INFO    | Class imbalance: 0.1291% fraud rate, 774:1 ratio, 16 flagged out of 6362620
+2026-07-31 11:16:19,789 | aml_detector.eda          | INFO    | [OK] class_imbalance complete
+2026-07-31 11:16:19,789 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:19,789 | aml_detector.eda          | INFO    | Running EDA: transaction_types
+2026-07-31 11:16:19,789 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:20,497 | aml_detector.eda          | INFO    | Saved figure: C:\Users\hardi\aml-creditcard\outputs\figures\02_transaction_types.png
+2026-07-31 11:16:20,497 | aml_detector.eda          | INFO    | [OK] transaction_types complete
+2026-07-31 11:16:20,498 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:20,498 | aml_detector.eda          | INFO    | Running EDA: amount_distributions
+2026-07-31 11:16:20,498 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:23,585 | aml_detector.eda          | INFO    | Saved figure: C:\Users\hardi\aml-creditcard\outputs\figures\03_amount_distributions.png
+2026-07-31 11:16:23,586 | aml_detector.eda          | INFO    | [OK] amount_distributions complete
+2026-07-31 11:16:23,586 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:23,586 | aml_detector.eda          | INFO    | Running EDA: temporal_patterns
+2026-07-31 11:16:23,586 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:24,499 | aml_detector.eda          | INFO    | Saved figure: C:\Users\hardi\aml-creditcard\outputs\figures\04_temporal_patterns.png
+2026-07-31 11:16:24,500 | aml_detector.eda          | INFO    | [OK] temporal_patterns complete
+2026-07-31 11:16:24,500 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:24,500 | aml_detector.eda          | INFO    | Running EDA: fan_out
+2026-07-31 11:16:24,500 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:32,089 | aml_detector.eda          | WARNING | No accounts met the fan-out threshold of 5 recipients.
+2026-07-31 11:16:32,091 | aml_detector.eda          | INFO    | [OK] fan_out complete
+2026-07-31 11:16:32,091 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:32,091 | aml_detector.eda          | INFO    | Running EDA: fan_in
+2026-07-31 11:16:32,091 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:39,158 | aml_detector.eda          | WARNING | No accounts met the fan-in threshold of 5 senders.
+2026-07-31 11:16:39,317 | aml_detector.eda          | INFO    | [OK] fan_in complete
+2026-07-31 11:16:39,317 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:39,317 | aml_detector.eda          | INFO    | Running EDA: balance_inconsistency
+2026-07-31 11:16:39,317 | aml_detector.eda          | INFO    | ============================================================
+2026-07-31 11:16:41,219 | aml_detector.eda          | INFO    | Saved figure: C:\Users\hardi\aml-creditcard\outputs\figures\07_balance_inconsistency.png
+2026-07-31 11:16:41,278 | aml_detector.eda          | INFO    | [OK] balance_inconsistency complete
+2026-07-31 11:16:41,278 | run_eda                   | INFO    | 
+2026-07-31 11:16:41,278 | run_eda                   | INFO    | ======================================================================
+2026-07-31 11:16:41,278 | run_eda                   | INFO    | EDA SUMMARY REPORT
+2026-07-31 11:16:41,278 | run_eda                   | INFO    | ======================================================================
+2026-07-31 11:16:41,278 | run_eda                   | INFO    | 
+2026-07-31 11:16:41,278 | run_eda                   | INFO    | 1. CLASS IMBALANCE
+2026-07-31 11:16:41,278 | run_eda                   | INFO    |    Fraud rate:      0.1291%
+2026-07-31 11:16:41,278 | run_eda                   | INFO    |    Imbalance ratio: 774:1 (legit:fraud)
+2026-07-31 11:16:41,278 | run_eda                   | INFO    |    Flagged by sim:  16
+2026-07-31 11:16:41,278 | run_eda                   | INFO    |    -> The built-in flag catches almost nothing. We need better signals.
+2026-07-31 11:16:41,278 | run_eda                   | INFO    | 
+2026-07-31 11:16:41,278 | run_eda                   | INFO    | 2. TRANSACTION TYPES
+2026-07-31 11:16:41,278 | run_eda                   | INFO    |    Fraud in CASH_OUT    : 4,116
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    Fraud in TRANSFER    : 4,097
+2026-07-31 11:16:41,279 | run_eda                   | INFO    | 
+2026-07-31 11:16:41,279 | run_eda                   | INFO    | 3. AMOUNT DISTRIBUTIONS
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    CASH_IN     : 0.68% of transactions in $8K-$10K structuring band
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    CASH_OUT    : 0.65% of transactions in $8K-$10K structuring band
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    DEBIT       : 4.29% of transactions in $8K-$10K structuring band
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    PAYMENT     : 8.69% of transactions in $8K-$10K structuring band
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    TRANSFER    : 0.24% of transactions in $8K-$10K structuring band
+2026-07-31 11:16:41,279 | run_eda                   | INFO    | 
+2026-07-31 11:16:41,279 | run_eda                   | INFO    | 4. FAN-OUT (SMURFING SENDERS)
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    Suspicious accounts: 0
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    Of which known fraud: 0
+2026-07-31 11:16:41,279 | run_eda                   | INFO    | 
+2026-07-31 11:16:41,279 | run_eda                   | INFO    | 5. FAN-IN (COLLECTION POINTS)
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    Suspicious accounts: 0
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    With cash-out:       0
+2026-07-31 11:16:41,279 | run_eda                   | INFO    | 
+2026-07-31 11:16:41,279 | run_eda                   | INFO    | 6. BALANCE INCONSISTENCIES
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    Originator discrepancies: 81.5%
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    Destination discrepancies: 84.8%
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    Fraud orig disc rate:      43.3%
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    Legit orig disc rate:       81.5%
+2026-07-31 11:16:41,279 | run_eda                   | INFO    |    -> Strong signal if fraud has much higher discrepancy rate.
+2026-07-31 11:16:41,283 | run_eda                   | INFO    | 
+2026-07-31 11:16:41,284 | run_eda                   | INFO    | Results saved to: C:\Users\hardi\aml-creditcard\outputs\eda_results.json
+2026-07-31 11:16:41,284 | run_eda                   | INFO    | 
+2026-07-31 11:16:41,284 | run_eda                   | INFO    | ======================================================================
+2026-07-31 11:16:41,284 | run_eda                   | INFO    | Figures saved to: C:\Users\hardi\aml-creditcard\outputs\figures
+2026-07-31 11:16:41,284 | run_eda                   | INFO    | EDA complete! Review the figures and report above.
+2026-07-31 11:16:41,284 | run_eda                   | INFO    | ======================================================================
