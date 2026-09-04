@@ -19,12 +19,12 @@ import json
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import joblib
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.staticfiles import StaticFiles
 
 from aml_detector.config import (
@@ -43,7 +43,29 @@ from aml_detector.schemas import (
     ModelInfoResponse,
     HealthResponse,
     RiskTier,
+    UploadPreviewResponse,
+    UploadPredictionResponse,
+    UploadSummary,
+    AgentAction,
+    AgentInvestigationResponse,
+    AgentChatRequest,
+    AgentChatResponse,
+    PipelineTransactionEvent,
+    PipelineStreamStatus,
 )
+from aml_detector.file_parser import (
+    parse_uploaded_file,
+    auto_map_columns,
+    validate_and_transform,
+)
+from aml_detector.agent import (
+    investigate_transaction,
+    handle_copilot_chat,
+    determine_agent_action,
+    evaluate_risk_factors,
+    generate_sar_report,
+)
+from aml_detector.stream_simulator import stream_simulator
 
 logger = logging.getLogger(__name__)
 
@@ -163,9 +185,13 @@ async def lifespan(app: FastAPI):
             _training_metrics = json.load(f)
         logger.info("Loaded training metrics from %s", metrics_path)
 
+    # Wire up the transaction stream processor for the agentic pipeline
+    stream_simulator.set_processor(_process_stream_transaction)
+
     yield  # App is running
 
     # Cleanup
+    stream_simulator.stop()
     _model = None
     logger.info("Model unloaded.")
 
@@ -273,6 +299,241 @@ async def model_metrics():
     if not _training_metrics:
         raise HTTPException(status_code=404, detail="No training metrics available")
     return _training_metrics
+
+
+# ---------------------------------------------------------------------------
+# File Upload endpoints
+# ---------------------------------------------------------------------------
+
+MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+
+
+@app.post("/upload/preview", response_model=UploadPreviewResponse, tags=["Upload"])
+async def upload_preview(file: UploadFile = File(...)):
+    """Upload a CSV/Excel file and preview its contents + auto-detected column mapping.
+
+    Returns the first 5 rows and the auto-detected mapping so the user can
+    review and adjust before scoring.
+    """
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    file_bytes = await file.read()
+    if len(file_bytes) > MAX_UPLOAD_SIZE_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File too large ({len(file_bytes) / 1024 / 1024:.1f}MB). Maximum is 10MB.",
+        )
+
+    try:
+        df = parse_uploaded_file(file_bytes, file.filename)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    mapping = auto_map_columns(df)
+
+    # Build preview rows (first 5), converting to JSON-safe types
+    preview_df = df.head(5)
+    preview_rows = []
+    for _, row in preview_df.iterrows():
+        row_dict = {}
+        for col in preview_df.columns:
+            val = row[col]
+            if hasattr(val, "item"):
+                val = val.item()
+            if pd.isna(val):
+                val = None
+            row_dict[str(col)] = val
+        preview_rows.append(row_dict)
+
+    return UploadPreviewResponse(
+        filename=file.filename,
+        total_rows=len(df),
+        columns=[str(c) for c in df.columns],
+        preview_rows=preview_rows,
+        auto_mapping=mapping,
+    )
+
+
+@app.post("/upload", response_model=UploadPredictionResponse, tags=["Upload"])
+async def upload_and_score(
+    file: UploadFile = File(...),
+    mapping_json: Optional[str] = None,
+):
+    """Upload a CSV/Excel file and score all transactions for fraud risk.
+
+    Optionally provide a JSON string of column mappings to override the
+    auto-detection. Format: {"amount": "My Amount Column", ...}
+    """
+    if _model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
+
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    file_bytes = await file.read()
+    if len(file_bytes) > MAX_UPLOAD_SIZE_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File too large ({len(file_bytes) / 1024 / 1024:.1f}MB). Maximum is 10MB.",
+        )
+
+    # Parse the file
+    try:
+        df = parse_uploaded_file(file_bytes, file.filename)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    total_rows = len(df)
+
+    # Determine column mapping
+    if mapping_json:
+        try:
+            mapping = json.loads(mapping_json)
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Invalid mapping_json format")
+    else:
+        mapping = auto_map_columns(df)
+
+    # Validate and transform
+    try:
+        transactions, warnings = validate_and_transform(df, mapping)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    if not transactions:
+        raise HTTPException(
+            status_code=400,
+            detail="No valid transactions found after parsing and validation.",
+        )
+
+    # Score all transactions (in chunks to avoid memory issues)
+    all_predictions = []
+    chunk_size = MAX_BATCH_SIZE
+    for i in range(0, len(transactions), chunk_size):
+        chunk = transactions[i : i + chunk_size]
+        for tx_dict in chunk:
+            tx = TransactionRequest(**tx_dict)
+            pred = _predict_single(tx)
+            all_predictions.append(pred)
+
+    # Compute summary
+    probabilities = [p.fraud_probability for p in all_predictions]
+    tier_counts: Dict[str, int] = {}
+    for p in all_predictions:
+        tier_counts[p.risk_tier.value] = tier_counts.get(p.risk_tier.value, 0) + 1
+
+    summary = UploadSummary(
+        total_scored=len(all_predictions),
+        flagged_count=sum(1 for p in all_predictions if p.is_flagged),
+        avg_probability=round(float(np.mean(probabilities)), 6),
+        max_probability=round(float(np.max(probabilities)), 6),
+        tier_distribution=tier_counts,
+    )
+
+    return UploadPredictionResponse(
+        filename=file.filename,
+        total_rows=total_rows,
+        column_mapping=mapping,
+        warnings=warnings,
+        predictions=all_predictions,
+        summary=summary,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Agentic Pipeline & Investigation Endpoints
+# ---------------------------------------------------------------------------
+
+async def _process_stream_transaction(tx: TransactionRequest) -> PipelineTransactionEvent:
+    """Internal helper to score and triage a streaming transaction through the agent."""
+    import datetime, uuid
+    pred = _predict_single(tx)
+    investigation = investigate_transaction(tx, pred.fraud_probability, pred.risk_tier)
+    tx_id = f"TX-{uuid.uuid4().hex[:8].upper()}"
+    timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%H:%M:%S")
+
+    return PipelineTransactionEvent(
+        tx_id=tx_id,
+        timestamp=timestamp,
+        step=tx.step,
+        type=tx.type.value,
+        amount=tx.amount,
+        nameOrig=tx.nameOrig,
+        nameDest=tx.nameDest,
+        oldbalanceOrg=tx.oldbalanceOrg,
+        newbalanceOrig=tx.newbalanceOrig,
+        oldbalanceDest=tx.oldbalanceDest,
+        newbalanceDest=tx.newbalanceDest,
+        fraud_probability=pred.fraud_probability,
+        risk_tier=pred.risk_tier,
+        agent_action=investigation.recommended_action,
+        sar_generated=investigation.sar_report is not None,
+        sar_id=investigation.sar_report.sar_id if investigation.sar_report else None,
+    )
+
+
+@app.post("/agent/investigate", response_model=AgentInvestigationResponse, tags=["Agent"])
+async def agent_investigate(transaction: TransactionRequest):
+    """Execute autonomous deep investigation and SAR drafting on a single transaction."""
+    if _model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
+
+    pred = _predict_single(transaction)
+    return investigate_transaction(transaction, pred.fraud_probability, pred.risk_tier)
+
+
+@app.post("/agent/chat", response_model=AgentChatResponse, tags=["Agent"])
+async def agent_chat(request: AgentChatRequest):
+    """Interactive Compliance Copilot conversational assistant."""
+    return handle_copilot_chat(
+        query=request.query,
+        tx_context=request.transaction_context,
+        history=request.history,
+    )
+
+
+@app.post("/pipeline/stream/start", tags=["Pipeline"])
+async def start_pipeline_stream(speed_tps: float = 1.0):
+    """Start automated live transaction feed simulation."""
+    if _model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
+    stream_simulator.start(speed_tps=speed_tps)
+    return {"status": "started", "speed_tps": stream_simulator.speed_tps}
+
+
+@app.post("/pipeline/stream/stop", tags=["Pipeline"])
+async def stop_pipeline_stream():
+    """Stop the automated transaction stream."""
+    stream_simulator.stop()
+    return {"status": "stopped"}
+
+
+@app.post("/pipeline/stream/reset", tags=["Pipeline"])
+async def reset_pipeline_stream():
+    """Reset stream history and counters."""
+    stream_simulator.reset_stats()
+    return {"status": "reset"}
+
+
+@app.get("/pipeline/stream/status", response_model=PipelineStreamStatus, tags=["Pipeline"])
+async def get_pipeline_stream_status():
+    """Retrieve current stream status, statistics, and recent events."""
+    return stream_simulator.get_status()
+
+
+@app.post("/pipeline/process-batch", tags=["Pipeline"])
+async def process_pipeline_batch(request: BatchTransactionRequest):
+    """Ingest, score, triage, and execute agent decisions on a batch of transactions."""
+    if _model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
+
+    events = []
+    for tx in request.transactions:
+        event = await _process_stream_transaction(tx)
+        events.append(event)
+
+    return {"events": events, "total_processed": len(events)}
 
 
 # ---------------------------------------------------------------------------

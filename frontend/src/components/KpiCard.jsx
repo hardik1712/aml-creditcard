@@ -14,7 +14,7 @@ export default function KpiCard({ label, value, suffix = '', decimals = 0, icon,
   const animated  = useAnimatedValue(isNumeric ? value : null, { decimals, suffix });
 
   return (
-    <div className={`glass p-6 flex flex-col gap-2 border-t-2 ${color} hover:-translate-y-1 transition-transform duration-200`}>
+    <div className={`glass p-6 flex flex-col gap-2 border-t-2 ${color} hover:-translate-y-2 hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.5)] transition-all duration-300`}>
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-widest text-slate-400 font-semibold">{label}</span>
         {icon && <span className="text-xl">{icon}</span>}

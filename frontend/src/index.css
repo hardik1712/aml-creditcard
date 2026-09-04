@@ -27,9 +27,11 @@ body {
   min-height: 100vh;
   font-family: 'Inter', 'system-ui', sans-serif;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.12) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(168, 85, 247, 0.10) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+  background-size: 200% 200%;
+  animation: gradientBG 15s ease infinite;
   background-attachment: fixed;
 }
 
@@ -57,17 +59,28 @@ body {
   to { transform: rotate(360deg); }
 }
 
-.animate-fade-up     { animation: fadeUp 0.4s ease both; }
-.animate-slide-right { animation: slideInRight 0.35s cubic-bezier(0.4,0,0.2,1) both; }
-.animate-pulse-slow  { animation: pulse 2s ease-in-out infinite; }
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-fade-up     { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-slide-right { animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-pulse-slow  { animation: pulse 2.5s ease-in-out infinite; }
 
 .glass {
-  background: rgba(30, 41, 59, 0.65);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+  transition: all 0.3s ease;
+}
+.glass:hover {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 .gradient-text {
@@ -79,12 +92,94 @@ body {
 
 .gradient-btn {
   background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  background-size: 200% 200%;
+  transition: all 0.3s ease;
 }
 .gradient-btn:hover:not(:disabled) {
-  opacity: 0.92;
+  background-position: 100% 50%;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5), 0 8px 10px -6px rgba(139, 92, 246, 0.5);
 }
 .gradient-btn:active:not(:disabled) { transform: translateY(0); }
 .gradient-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Floating Label Form Inputs */
+.floating-input {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 0.75rem;
+  padding: 1.25rem 1rem 0.5rem 1rem;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+.floating-input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25);
+  background: rgba(0, 0, 0, 0.3);
+}
+.floating-label {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  transform-origin: 0 0;
+}
+.floating-input:focus ~ .floating-label,
+.floating-input:not(:placeholder-shown) ~ .floating-label,
+.floating-input.has-value ~ .floating-label {
+  transform: translateY(-0.6rem) scale(0.85);
+  color: #c4b5fd;
+}
+.input-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Drop zone ── */
+.drop-zone {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.drop-zone:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+/* ── Results table ── */
+.results-table-container {
+  max-height: 600px;
+  overflow-y: auto;
+}
+.results-table {
+  border-collapse: collapse;
+}
+.results-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.results-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+.results-table tbody tr:nth-child(odd) {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ── Select dropdown styling for dark theme ── */
+select.floating-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 2.5rem;
+}
+select.floating-input option {
+  background: #1e293b;
+  color: #f8fafc;
+}
+

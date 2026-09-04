@@ -31,7 +31,7 @@ export default function Overview() {
   return (
     <section className="animate-fade-up space-y-8">
       {/* KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {STATIC_KPIS.map((k) => (
           <KpiCard key={k.label} {...k} />
         ))}
@@ -46,8 +46,8 @@ export default function Overview() {
       </div>
 
       {/* Model Info Card */}
-      <div className="glass p-6">
-        <h3 className="text-lg font-bold mb-5 flex items-center gap-2">
+      <div className="glass p-8">
+        <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
           <Brain size={20} className="text-violet-400" />
           Model Information
         </h3>
@@ -59,7 +59,7 @@ export default function Overview() {
             ))}
           </div>
         ) : modelInfo ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { label: 'Model Type',       value: modelInfo.model_type,     icon: <Layers size={16} className="text-violet-400" /> },
               { label: 'Features',         value: modelInfo.n_features,     icon: <TrendingUp size={16} className="text-sky-400" /> },
@@ -78,7 +78,7 @@ export default function Overview() {
 
         {/* Metrics details */}
         {metrics && (
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
               ['Accuracy',  metrics.accuracy],
               ['Recall',    metrics.recall],

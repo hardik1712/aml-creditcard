@@ -3,8 +3,11 @@ import { Shield, Activity } from 'lucide-react';
 import { api } from '../api';
 
 const NAV_ITEMS = [
-  { id: 'overview', label: 'Overview', emoji: '📊' },
-  { id: 'scorer',   label: 'Transaction Scorer', emoji: '🔍' },
+  { id: 'pipeline',   label: 'Agentic Pipeline',    emoji: '🤖' },
+  { id: 'copilot',    label: 'Compliance Copilot',  emoji: '💬' },
+  { id: 'overview',   label: 'Overview & KPIs',     emoji: '📊' },
+  { id: 'upload',     label: 'Batch File Ingestion',emoji: '📁' },
+  { id: 'scorer',     label: 'Transaction Scorer',  emoji: '🔍' },
 ];
 
 export default function Sidebar({ active, onNavigate }) {
@@ -50,10 +53,10 @@ export default function Sidebar({ active, onNavigate }) {
           <button
             key={item.id}
             onClick={() => onNavigate(item.id)}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all duration-200 ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all duration-300 ${
               active === item.id
-                ? 'bg-white/10 text-white border-l-4 border-violet-500 pl-3'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-white/10 text-white border-l-4 border-violet-500 pl-3 shadow-[0_0_15px_rgba(139,92,246,0.25)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-1.5'
             }`}
           >
             <span className="text-base">{item.emoji}</span>
