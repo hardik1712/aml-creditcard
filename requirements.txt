@@ -29,3 +29,12 @@ streamlit>=1.25
 httpx>=0.24
 python-multipart>=0.0.6
 openpyxl>=3.1
+
+# ── Phase 6: Database (RDBMS + NoSQL) ──
+sqlalchemy>=2.0
+tinydb>=4.8
+
+# ── Phase 7: Selenium BDD Testing ──
+selenium>=4.15
+pytest-bdd>=7.0
+webdriver-manager>=4.0

@@ -110,3 +110,11 @@ MAX_BATCH_SIZE = 1000
 # ---------------------------------------------------------------------------
 DASHBOARD_PORT = 8501
 
+# ---------------------------------------------------------------------------
+# Database settings
+# ---------------------------------------------------------------------------
+DB_DIR = DATA_DIR / "db"
+SQLITE_URL = f"sqlite:///{DB_DIR / 'aml_detector.db'}"
+TINYDB_INVESTIGATIONS_PATH = DB_DIR / "investigations.json"
+TINYDB_CHATS_PATH = DB_DIR / "chats.json"
+

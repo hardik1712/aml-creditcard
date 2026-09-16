@@ -17,6 +17,7 @@ Design decisions:
 
 import json
 import logging
+import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -66,6 +67,7 @@ from aml_detector.agent import (
     generate_sar_report,
 )
 from aml_detector.stream_simulator import stream_simulator
+from aml_detector import database as db
 
 logger = logging.getLogger(__name__)
 
@@ -185,6 +187,11 @@ async def lifespan(app: FastAPI):
             _training_metrics = json.load(f)
         logger.info("Loaded training metrics from %s", metrics_path)
 
+    # Initialize database layer (RDBMS + NoSQL)
+    db.init_rdbms()
+    db.init_nosql()
+    db.log_audit("/lifespan", "startup", "API started, databases initialized")
+
     # Wire up the transaction stream processor for the agentic pipeline
     stream_simulator.set_processor(_process_stream_transaction)
 
@@ -192,6 +199,8 @@ async def lifespan(app: FastAPI):
 
     # Cleanup
     stream_simulator.stop()
+    db.log_audit("/lifespan", "shutdown", "API shutting down")
+    db.close_all()
     _model = None
     logger.info("Model unloaded.")
 
@@ -236,7 +245,21 @@ async def predict_single(transaction: TransactionRequest):
     if _model is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
 
-    return _predict_single(transaction)
+    result = _predict_single(transaction)
+
+    # Persist to RDBMS
+    try:
+        db.save_transaction(
+            tx_data=transaction.model_dump(),
+            fraud_probability=result.fraud_probability,
+            risk_tier=result.risk_tier.value,
+            is_flagged=result.is_flagged,
+        )
+        db.log_audit("/predict", "score_transaction", f"amount={transaction.amount}")
+    except Exception:
+        logger.warning("Failed to persist transaction to database", exc_info=True)
+
+    return result
 
 
 @app.post("/predict/batch", response_model=BatchPredictionResponse, tags=["Prediction"])
@@ -480,17 +503,42 @@ async def agent_investigate(transaction: TransactionRequest):
         raise HTTPException(status_code=503, detail="Model not loaded")
 
     pred = _predict_single(transaction)
-    return investigate_transaction(transaction, pred.fraud_probability, pred.risk_tier)
+    result = investigate_transaction(transaction, pred.fraud_probability, pred.risk_tier)
+
+    # Persist investigation to NoSQL (deeply nested document)
+    try:
+        tx_id = str(uuid.uuid4())
+        db.save_investigation(tx_id, result.model_dump())
+        db.log_audit("/agent/investigate", "investigation", f"tier={pred.risk_tier.value}")
+
+        # If a SAR was generated, also persist it to RDBMS
+        if result.sar_report:
+            db.save_sar(tx_id, result.sar_report.model_dump())
+    except Exception:
+        logger.warning("Failed to persist investigation to database", exc_info=True)
+
+    return result
 
 
 @app.post("/agent/chat", response_model=AgentChatResponse, tags=["Agent"])
 async def agent_chat(request: AgentChatRequest):
     """Interactive Compliance Copilot conversational assistant."""
-    return handle_copilot_chat(
+    result = handle_copilot_chat(
         query=request.query,
         tx_context=request.transaction_context,
         history=request.history,
     )
+
+    # Persist chat to NoSQL
+    try:
+        session_id = str(uuid.uuid4())
+        context = request.transaction_context.model_dump() if request.transaction_context else None
+        db.save_chat(session_id, request.query, result.response, context)
+        db.log_audit("/agent/chat", "copilot_chat", f"query_len={len(request.query)}")
+    except Exception:
+        logger.warning("Failed to persist chat to database", exc_info=True)
+
+    return result
 
 
 @app.post("/pipeline/stream/start", tags=["Pipeline"])
@@ -534,6 +582,87 @@ async def process_pipeline_batch(request: BatchTransactionRequest):
         events.append(event)
 
     return {"events": events, "total_processed": len(events)}
+
+
+# ---------------------------------------------------------------------------
+# Database Query Endpoints
+# ---------------------------------------------------------------------------
+
+@app.get("/db/transactions", tags=["Database"])
+async def db_list_transactions(
+    risk_tier: Optional[str] = None,
+    flagged_only: bool = False,
+    limit: int = 100,
+    offset: int = 0,
+):
+    """Query stored transactions with optional filters.
+
+    Demonstrates RDBMS querying via SQLAlchemy ORM with filtering,
+    pagination, and ordering.
+    """
+    try:
+        records = db.query_transactions(
+            risk_tier=risk_tier,
+            flagged_only=flagged_only,
+            limit=limit,
+            offset=offset,
+        )
+        return {"transactions": records, "count": len(records)}
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
+@app.get("/db/transactions/{tx_id}", tags=["Database"])
+async def db_get_transaction(tx_id: str):
+    """Retrieve a specific transaction by ID from the RDBMS."""
+    try:
+        record = db.get_transaction_by_id(tx_id)
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    if not record:
+        raise HTTPException(status_code=404, detail=f"Transaction {tx_id} not found")
+    return record
+
+
+@app.get("/db/sars", tags=["Database"])
+async def db_list_sars(limit: int = 100, offset: int = 0):
+    """List all generated SAR reports from the RDBMS."""
+    try:
+        records = db.query_sars(limit=limit, offset=offset)
+        return {"sars": records, "count": len(records)}
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
+@app.get("/db/investigations/{tx_id}", tags=["Database"])
+async def db_get_investigation(tx_id: str):
+    """Retrieve a full investigation report from the NoSQL document store."""
+    try:
+        doc = db.get_investigation(tx_id)
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    if not doc:
+        raise HTTPException(status_code=404, detail=f"Investigation for {tx_id} not found")
+    return doc
+
+
+@app.get("/db/investigations", tags=["Database"])
+async def db_list_investigations(limit: int = 100):
+    """List all investigation documents from the NoSQL store."""
+    try:
+        docs = db.get_all_investigations(limit=limit)
+        return {"investigations": docs, "count": len(docs)}
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
+@app.get("/db/stats", tags=["Database"])
+async def db_stats():
+    """Aggregate database statistics (RDBMS + NoSQL)."""
+    try:
+        return db.get_db_stats()
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
 
 
 # ---------------------------------------------------------------------------
