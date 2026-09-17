@@ -1,6 +1,6 @@
 # 🛡️ AML Fraud Detection Web App
 
-A comprehensive, full-stack **AML Fraud Detection Platform** demonstrating a strong passion for the financial industry and proactive problem-solving. Built adhering to full **Software Development Life Cycle (SDLC)** practices using Git for version control, this platform leverages advanced **algorithms and data structures** (NetworkX graph analytics) and **Machine Learning** (LightGBM) to detect sophisticated financial fraud typologies in real-time.
+A comprehensive, full-stack **AML Fraud Detection Platform** built for financial institutions, compliance officers, and fraud analysts to proactively solve complex transaction monitoring challenges. Engineered adhering to full **Software Development Life Cycle (SDLC)** practices using Git for version control, this platform leverages advanced **algorithms and data structures** (NetworkX graph analytics) and **Machine Learning** (LightGBM) to detect sophisticated financial fraud typologies in real-time.
 
 It features a resilient dual-database architecture using **RDBMS** (SQLite) and **NoSQL** (TinyDB), and incorporates **Artificial Intelligence and Generative AI** concepts for autonomous triage. The system's reliability is ensured through rigorous **functional, system, and integration testing**, highlighted by a UI automation suite built with **Selenium and BDD frameworks**.
 
