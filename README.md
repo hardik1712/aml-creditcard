@@ -1,20 +1,19 @@
 # 🛡️ AML Fraud Detection Web App
 
-A modern, full-stack web application for real-time monitoring and analysis of transaction fraud risk. The backend uses a **LightGBM** model trained on the PaySim dataset to score transactions, with advanced velocity and graph-based feature engineering. The frontend is built with **React + Vite + Tailwind CSS** for a premium, responsive dashboard experience.
+A comprehensive, full-stack **AML Fraud Detection Platform** demonstrating a strong passion for the financial industry and proactive problem-solving. Built adhering to full **Software Development Life Cycle (SDLC)** practices using Git for version control, this platform leverages advanced **algorithms and data structures** (NetworkX graph analytics) and **Machine Learning** (LightGBM) to detect sophisticated financial fraud typologies in real-time.
+
+It features a resilient dual-database architecture using **RDBMS** (SQLite) and **NoSQL** (TinyDB), and incorporates **Artificial Intelligence and Generative AI** concepts for autonomous triage. The system's reliability is ensured through rigorous **functional, system, and integration testing**, highlighted by a UI automation suite built with **Selenium and BDD frameworks**.
 
 ---
 
 ## ✨ Features
 
-- **Real-Time Scoring** — Submit transaction details and receive instant fraud probability predictions with animated results.
-- **Agentic Triage & Compliance Copilot** — LangGraph-powered AI agent to deeply analyze risk factors and a conversational assistant to help with compliance workflows.
-- **SAR Generation** — Auto-drafts FinCEN-compliant Suspicious Activity Reports (SAR) narratives for critical-risk cases.
-- **Dual-Database Architecture** — Auto-persists structured transaction and SAR data to **SQLite (RDBMS)**, and unstructured investigation/chat data to **TinyDB (NoSQL)**.
-- **Risk Tiering** — Transactions are classified into dynamic risk tiers: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
-- **Advanced Feature Engineering** — Velocity and degree-ratio features (originator/destination history) engineered on-the-fly at the API layer.
-- **Unified Architecture** — FastAPI serves the React production build directly from `frontend/dist/`. No separate frontend server needed in production.
-- **UI Automation Testing** — Comprehensive end-to-end BDD testing using **Selenium WebDriver** and **pytest-bdd**.
-- **Hot Reload Dev Mode** — In development, Vite proxies API calls to FastAPI, giving you instant hot-module-replacement.
+- **Proactive Problem-Solving via ML** — Real-time transaction scoring using an optimized LightGBM model to instantly predict fraud probabilities.
+- **Advanced Algorithms & Data Structures** — Velocity and degree-ratio features (originator/destination history) engineered on-the-fly using NetworkX graph analytics.
+- **Generative AI Copilot & SARs** — LangGraph-powered AI agent utilizing LLMs to deeply analyze risk factors and auto-draft FinCEN-compliant Suspicious Activity Reports (SAR).
+- **RDBMS + NoSQL Architecture** — Auto-persists structured transaction and SAR data to **SQLite (RDBMS)**, and unstructured investigation/chat data to **TinyDB (NoSQL)**.
+- **Selenium BDD Automation Testing** — Comprehensive end-to-end functional and integration testing using **Selenium WebDriver** and **pytest-bdd**.
+- **Unified Full-Stack Architecture** — Python FastAPI backend serving a modern JavaScript (React) frontend directly, demonstrating robust software development practices.
 - **Premium UI** — Glassmorphism dark theme, animated KPI counters, risk gauge bar, staggered feature animations, and slide-in toast notifications.
 
 ---
